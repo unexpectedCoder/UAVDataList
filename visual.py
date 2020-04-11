@@ -10,16 +10,13 @@ def weight_speed(uavs: tuple, threshold: float = None, approx: int = None):
                       if uav.takeoff_weight is not None and uav.max_speed is not None])
         y = np.array([uav.max_speed for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_speed is not None])
-    elif threshold > 0:
+    else:
         x = np.array([uav.takeoff_weight for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_speed is not None
                       and uav.takeoff_weight < threshold])
         y = np.array([uav.max_speed for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_speed is not None
                       and uav.takeoff_weight < threshold])
-    else:
-        print(f"Error in <visual>: invalid threshold value ({threshold}) - it must be positive!")
-        raise ValueError
 
     inscriptions = ('',
                     f"Max takeoff weight, [{uavs[0].units['max takeoff weight']}]",
@@ -41,16 +38,13 @@ def speed_endurance(uavs: tuple, threshold: float = None, approx: int = None):
                       if uav.max_speed is not None and uav.endurance is not None])
         y = np.array([uav.endurance for uav in uavs
                       if uav.max_speed is not None and uav.endurance is not None])
-    elif threshold > 0:
+    else:
         x = np.array([uav.max_speed for uav in uavs
                       if uav.max_speed is not None and uav.endurance is not None
                       and uav.endurance < threshold])
         y = np.array([uav.endurance for uav in uavs
                       if uav.max_speed is not None and uav.endurance is not None
                       and uav.endurance < threshold])
-    else:
-        print(f"Error in <visual>: invalid threshold value ({threshold}) - it must be positive!")
-        raise ValueError
 
     inscriptions = ('',
                     f"Max speed, [{uavs[0].units['max speed']}]",
@@ -72,16 +66,13 @@ def weight_payload(uavs: tuple, threshold: float = None, approx: int = None):
                       if uav.takeoff_weight is not None and uav.payload is not None])
         y = np.array([uav.payload for uav in uavs
                       if uav.takeoff_weight is not None and uav.payload is not None])
-    elif threshold > 0:
+    else:
         x = np.array([uav.takeoff_weight for uav in uavs
                       if uav.takeoff_weight is not None and uav.payload is not None
                       and uav.payload < threshold])
         y = np.array([uav.payload for uav in uavs
                       if uav.takeoff_weight is not None and uav.payload is not None
                       and uav.payload < threshold])
-    else:
-        print(f"Error in <visual>: invalid threshold value ({threshold}) - it must be positive!")
-        raise ValueError
 
     inscriptions = ('',
                     f"Max takeoff weight, [{uavs[0].units['max takeoff weight']}]",
@@ -103,16 +94,13 @@ def weight_ceiling(uavs: tuple, threshold: float = None, approx: int = None):
                       if uav.takeoff_weight is not None and uav.ceiling is not None])
         y = np.array([uav.ceiling for uav in uavs
                       if uav.takeoff_weight is not None and uav.ceiling is not None])
-    elif threshold > 0:
+    else:
         x = np.array([uav.takeoff_weight for uav in uavs
                       if uav.takeoff_weight is not None and uav.ceiling is not None
                       and uav.ceiling < threshold])
         y = np.array([uav.ceiling for uav in uavs
                       if uav.takeoff_weight is not None and uav.ceiling is not None
                       and uav.ceiling < threshold])
-    else:
-        print(f"Error in <visual>: invalid threshold value ({threshold}) - it must be positive!")
-        raise ValueError
 
     inscriptions = ('',
                     f"Max takeoff weight, [{uavs[0].units['max takeoff weight']}]",
@@ -135,16 +123,13 @@ def weight_range(uavs: tuple,
                       if uav.takeoff_weight is not None and uav.max_range is not None])
         y = np.array([uav.max_range for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_range is not None])
-    elif threshold > 0:
+    else:
         x = np.array([uav.takeoff_weight for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_range is not None
                       and uav.max_range < threshold])
         y = np.array([uav.max_range for uav in uavs
                       if uav.takeoff_weight is not None and uav.max_range is not None
                       and uav.max_range < threshold])
-    else:
-        print(f"Error in <visual>: invalid threshold value ({threshold}) - it must be positive!")
-        raise ValueError
 
     inscriptions = ('',
                     f"Max takeoff weight, [{uavs[0].units['max takeoff weight']}]",
@@ -160,10 +145,39 @@ def weight_range(uavs: tuple,
              x_approx=x_approx, y_approx=y_approx, polydeg=approx)
 
 
+def volume_weight(uavs: tuple,
+                  threshold: float = None, approx: int = None):
+    if threshold is None:
+        x = np.array([uav.geometry.vol for uav in uavs
+                      if uav.geometry.vol is not None and uav.takeoff_weight is not None])
+        y = np.array([uav.takeoff_weight for uav in uavs
+                      if uav.geometry.vol is not None and uav.takeoff_weight is not None])
+    else:
+        x = np.array([uav.geometry.vol for uav in uavs
+                      if uav.geometry.vol is not None and uav.takeoff_weight is not None
+                      and uav.takeoff_weight < threshold])
+        y = np.array([uav.takeoff_weight for uav in uavs
+                      if uav.geometry.vol is not None and uav.takeoff_weight is not None
+                      and uav.takeoff_weight < threshold])
+
+    inscriptions = ('',
+                    f"Volume, [{uavs[0].units['width']}$^3$]",
+                    f"Max takeoff weight, [{uavs[0].units['max takeoff weight']}]")
+    # Plotting
+    fig = plt.figure("Data Analysis (volume and weight)")
+
+    x_approx, y_approx = None, None
+    if approx is not None:
+        x_approx = np.linspace(x.min(), x.max(), 200)
+        y_approx = helpers.get_poly(x, y, approx, x_approx)
+    plotting(fig, x, y, *inscriptions,
+             x_approx=x_approx, y_approx=y_approx, polydeg=approx)
+
+
 def plotting(fig, x: np.ndarray, y: np.ndarray, title: str, x_label: str, y_label: str,
              with_grid: bool = True,
              x_approx: np.ndarray = None, y_approx: np.ndarray = None, polydeg: int = 1):
-    ax = fig.add_axes((.15, .1, .8, .8))
+    ax = fig.add_axes((.15, .15, .75, .75))
     ax.plot(x, y, marker='.', ls='', color='blue', label='Data')
     if x_approx is not None and y_approx is not None:
         if polydeg < 1:

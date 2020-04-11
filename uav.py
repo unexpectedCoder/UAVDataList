@@ -26,22 +26,18 @@ class UAVData:
 
 class UAVGeometry:
     def __init__(self, w: float, h: float, l: float, unit: str = 'm'):
-        w = .1 if w is None else w
-        h = .1 if h is None else h
-        l = .1 if l is None else l
-        if w < 0 or h < 0 or l < 0:
-            print("\tError in <UAVGeometry>: sizes must be positive!")
-            raise ValueError()
-
         self.unit, self.mul = unit, 1
         if unit == 'cm':
-            self.mul = 0.01
+            self.mul = .01
         elif unit == 'mm':
-            self.mul = 0.001
-        self.w, self.h, self.len = w * self.mul, h * self.mul, l * self.mul
+            self.mul = .001
+        self.w = w * self.mul if w is not None else None
+        self.h = h * self.mul if h is not None else None
+        self.l = l * self.mul if l is not None else None
+        self.vol = self.w * self.h * self.l if w is not None and h is not None and l is not None else None
 
     def __str__(self):
-        return f"(width x height x length): {self.w} x {self.h} x {self.len} [m]"
+        return f"(width x height x length) = ({self.w} x {self.h} x {self.l}) [m]; volume = {self.vol} [m^3]"
 
 
 class UAV:
@@ -62,6 +58,7 @@ class UAV:
         self.ceiling = self.data['ceiling']
         self.takeoff_weight = self.data['max takeoff weight']
         self.geometry = UAVGeometry(self.data['width'], self.data['height'], self.data['length'], unit='m')
+        self.engine = self.data['engine']
         self.temp_low = self.data['temp. low']
         self.temp_up = self.data['temp. up']
         self.url_source = self.data['source']
@@ -72,7 +69,7 @@ class UAV:
             self.init_frequency_values()
 
     def __str__(self):
-        return f"UAV model {self.model}:" \
+        return f"UAV model '{self.model}':" \
                f"\n - country: {self.country}" \
                f"\n - endurance: {self.endurance} [{self.units['endurance']}]" \
                f"\n - max range: {self.max_range} [{self.units['range']}]" \
@@ -83,6 +80,7 @@ class UAV:
                f"\n - geometry {self.geometry}" \
                f"\n - frequencies ranges names: {self.freq_str}" \
                f"\n - frequencies values: {self.freq} [{self.units['frequency']}]" \
+               f"\n - engine: {self.engine}" \
                f"\n - operating temperatures: from {self.temp_low} to {self.temp_up} [{self.units['temp. low']}]" \
                f"\n - info source: {self.url_source}"
 
